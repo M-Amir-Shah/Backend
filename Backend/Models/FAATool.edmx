@@ -1,0 +1,907 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="FAAToolModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Admin">
+          <Key>
+            <PropertyRef Name="AdminID" />
+          </Key>
+          <Property Name="AdminID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="char" MaxLength="50" Nullable="false" />
+          <Property Name="ContactNo" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="profilepic" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Amount">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="first_position" Type="int" Nullable="false" />
+          <Property Name="second_position" Type="int" Nullable="false" />
+          <Property Name="third_position" Type="int" Nullable="false" />
+          <Property Name="session" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="applicationID" />
+          </Key>
+          <Property Name="applicationID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="applicationDate" Type="varchar" MaxLength="30" />
+          <Property Name="reason" Type="varchar" MaxLength="300" />
+          <Property Name="requiredAmount" Type="varchar" MaxLength="30" />
+          <Property Name="studentId" Type="int" />
+          <Property Name="session" Type="varchar" MaxLength="30" />
+          <Property Name="father_status" Type="varchar" MaxLength="30" />
+          <Property Name="house" Type="varchar" MaxLength="10" />
+          <Property Name="guardian_name" Type="varchar" MaxLength="30" />
+          <Property Name="guardian_contact" Type="varchar" MaxLength="15" />
+          <Property Name="jobtitle" Type="varchar" MaxLength="30" />
+          <Property Name="salary" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="Budget">
+          <Key>
+            <PropertyRef Name="budgetId" />
+          </Key>
+          <Property Name="budgetId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="budgetAmount" Type="int" />
+          <Property Name="remainingAmount" Type="int" />
+          <Property Name="budget_session" Type="varchar" MaxLength="30" />
+          <Property Name="status" Type="varchar" MaxLength="5" />
+        </EntityType>
+        <EntityType Name="Committee">
+          <Key>
+            <PropertyRef Name="committeeId" />
+          </Key>
+          <Property Name="committeeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="facultyId" Type="int" />
+          <Property Name="status" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="Criteria">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="val1" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="val2" Type="varchar" MaxLength="15" />
+          <Property Name="policy_id" Type="int" />
+          <Property Name="description" Type="varchar" MaxLength="200" />
+          <Property Name="strength" Type="int" />
+        </EntityType>
+        <EntityType Name="EvidenceDocument">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="applicationId" Type="int" />
+          <Property Name="image" Type="varchar" MaxLength="50" />
+          <Property Name="document_type" Type="varchar" MaxLength="15" />
+        </EntityType>
+        <EntityType Name="Faculty">
+          <Key>
+            <PropertyRef Name="facultyId" />
+          </Key>
+          <Property Name="facultyId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="50" />
+          <Property Name="contactNo" Type="varchar" MaxLength="15" />
+          <Property Name="profilePic" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="FinancialAid">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="amount" Type="varchar" MaxLength="30" />
+          <Property Name="applicationStatus" Type="varchar" MaxLength="10" />
+          <Property Name="aidtype" Type="varchar" MaxLength="15" />
+          <Property Name="applicationId" Type="int" />
+        </EntityType>
+        <EntityType Name="graders">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="facultyId" Type="int" />
+          <Property Name="session" Type="varchar" MaxLength="30" />
+          <Property Name="feedback" Type="varchar" MaxLength="10" />
+          <Property Name="studentId" Type="int" />
+          <Property Name="status" Type="varchar" MaxLength="15" />
+          <Property Name="comment" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="MeritBase">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="studentId" Type="int" />
+          <Property Name="session" Type="varchar" MaxLength="30" />
+          <Property Name="position" Type="int" />
+        </EntityType>
+        <EntityType Name="Policies">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="policy" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="session" Type="varchar" MaxLength="15" Nullable="false" />
+          <Property Name="policyfor" Type="varchar" MaxLength="15" />
+        </EntityType>
+        <EntityType Name="Session">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="session" Type="varchar" MaxLength="20" />
+          <Property Name="start_date" Type="varchar" MaxLength="20" />
+          <Property Name="end_date" Type="varchar" MaxLength="20" />
+          <Property Name="submission_date" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="student_id" />
+          </Key>
+          <Property Name="arid_no" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="semester" Type="int" Nullable="false" />
+          <Property Name="cgpa" Type="float" />
+          <Property Name="section" Type="nvarchar" MaxLength="50" />
+          <Property Name="degree" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="father_name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="gender" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="student_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="profile_image" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="Suggestion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="comment" Type="varchar" MaxLength="1000" />
+          <Property Name="committeeId" Type="int" />
+          <Property Name="applicationId" Type="int" Nullable="false" />
+          <Property Name="status" Type="varchar" MaxLength="15" />
+          <Property Name="amount" Type="varchar" MaxLength="15" />
+        </EntityType>
+        <EntityType Name="Users">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="userName" Type="varchar" MaxLength="30" />
+          <Property Name="password" Type="varchar" MaxLength="50" />
+          <Property Name="role" Type="int" />
+          <Property Name="profileId" Type="int" />
+        </EntityType>
+        <Association Name="FK__Applicati__stude__5441852A">
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="studentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Committee__facul__5535A963">
+          <End Role="Faculty" Type="Self.Faculty" Multiplicity="0..1" />
+          <End Role="Committee" Type="Self.Committee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Faculty">
+              <PropertyRef Name="facultyId" />
+            </Principal>
+            <Dependent Role="Committee">
+              <PropertyRef Name="facultyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Criteria__policy__5629CD9C">
+          <End Role="Policies" Type="Self.Policies" Multiplicity="0..1" />
+          <End Role="Criteria" Type="Self.Criteria" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Policies">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Criteria">
+              <PropertyRef Name="policy_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__EvidenceD__appli__571DF1D5">
+          <End Role="Application" Type="Self.Application" Multiplicity="0..1" />
+          <End Role="EvidenceDocument" Type="Self.EvidenceDocument" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="applicationID" />
+            </Principal>
+            <Dependent Role="EvidenceDocument">
+              <PropertyRef Name="applicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__graders__faculty__59063A47">
+          <End Role="Faculty" Type="Self.Faculty" Multiplicity="0..1" />
+          <End Role="graders" Type="Self.graders" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Faculty">
+              <PropertyRef Name="facultyId" />
+            </Principal>
+            <Dependent Role="graders">
+              <PropertyRef Name="facultyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__graders__student__5812160E">
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <End Role="graders" Type="Self.graders" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="graders">
+              <PropertyRef Name="studentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__MeritBase__stude__59FA5E80">
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <End Role="MeritBase" Type="Self.MeritBase" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="MeritBase">
+              <PropertyRef Name="studentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Suggestio__appli__5BE2A6F2">
+          <End Role="Application" Type="Self.Application" Multiplicity="1" />
+          <End Role="Suggestion" Type="Self.Suggestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="applicationID" />
+            </Principal>
+            <Dependent Role="Suggestion">
+              <PropertyRef Name="applicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Suggestio__commi__5AEE82B9">
+          <End Role="Committee" Type="Self.Committee" Multiplicity="0..1" />
+          <End Role="Suggestion" Type="Self.Suggestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Committee">
+              <PropertyRef Name="committeeId" />
+            </Principal>
+            <Dependent Role="Suggestion">
+              <PropertyRef Name="committeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="FAAToolModelStoreContainer">
+          <EntitySet Name="Admin" EntityType="Self.Admin" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Amount" EntityType="Self.Amount" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Application" EntityType="Self.Application" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Budget" EntityType="Self.Budget" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Committee" EntityType="Self.Committee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Criteria" EntityType="Self.Criteria" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EvidenceDocument" EntityType="Self.EvidenceDocument" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Faculty" EntityType="Self.Faculty" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FinancialAid" EntityType="Self.FinancialAid" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="graders" EntityType="Self.graders" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MeritBase" EntityType="Self.MeritBase" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Policies" EntityType="Self.Policies" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Session" EntityType="Self.Session" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Student" EntityType="Self.Student" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Suggestion" EntityType="Self.Suggestion" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Applicati__stude__5441852A" Association="Self.FK__Applicati__stude__5441852A">
+            <End Role="Student" EntitySet="Student" />
+            <End Role="Application" EntitySet="Application" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Committee__facul__5535A963" Association="Self.FK__Committee__facul__5535A963">
+            <End Role="Faculty" EntitySet="Faculty" />
+            <End Role="Committee" EntitySet="Committee" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Criteria__policy__5629CD9C" Association="Self.FK__Criteria__policy__5629CD9C">
+            <End Role="Policies" EntitySet="Policies" />
+            <End Role="Criteria" EntitySet="Criteria" />
+          </AssociationSet>
+          <AssociationSet Name="FK__EvidenceD__appli__571DF1D5" Association="Self.FK__EvidenceD__appli__571DF1D5">
+            <End Role="Application" EntitySet="Application" />
+            <End Role="EvidenceDocument" EntitySet="EvidenceDocument" />
+          </AssociationSet>
+          <AssociationSet Name="FK__graders__faculty__59063A47" Association="Self.FK__graders__faculty__59063A47">
+            <End Role="Faculty" EntitySet="Faculty" />
+            <End Role="graders" EntitySet="graders" />
+          </AssociationSet>
+          <AssociationSet Name="FK__graders__student__5812160E" Association="Self.FK__graders__student__5812160E">
+            <End Role="Student" EntitySet="Student" />
+            <End Role="graders" EntitySet="graders" />
+          </AssociationSet>
+          <AssociationSet Name="FK__MeritBase__stude__59FA5E80" Association="Self.FK__MeritBase__stude__59FA5E80">
+            <End Role="Student" EntitySet="Student" />
+            <End Role="MeritBase" EntitySet="MeritBase" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Suggestio__appli__5BE2A6F2" Association="Self.FK__Suggestio__appli__5BE2A6F2">
+            <End Role="Application" EntitySet="Application" />
+            <End Role="Suggestion" EntitySet="Suggestion" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Suggestio__commi__5AEE82B9" Association="Self.FK__Suggestio__commi__5AEE82B9">
+            <End Role="Committee" EntitySet="Committee" />
+            <End Role="Suggestion" EntitySet="Suggestion" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="FAAToolModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Admin">
+          <Key>
+            <PropertyRef Name="AdminID" />
+          </Key>
+          <Property Name="AdminID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="50" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="ContactNo" Type="String" MaxLength="15" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="profilepic" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Amount">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="first_position" Type="Int32" Nullable="false" />
+          <Property Name="second_position" Type="Int32" Nullable="false" />
+          <Property Name="third_position" Type="Int32" Nullable="false" />
+          <Property Name="session" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Application">
+          <Key>
+            <PropertyRef Name="applicationID" />
+          </Key>
+          <Property Name="applicationID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="applicationDate" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="reason" Type="String" MaxLength="300" FixedLength="false" Unicode="false" />
+          <Property Name="requiredAmount" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="studentId" Type="Int32" />
+          <Property Name="session" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="father_status" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="house" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="guardian_name" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="guardian_contact" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="jobtitle" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="salary" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Student" Relationship="Self.FK__Applicati__stude__5441852A" FromRole="Application" ToRole="Student" />
+          <NavigationProperty Name="EvidenceDocuments" Relationship="Self.FK__EvidenceD__appli__571DF1D5" FromRole="Application" ToRole="EvidenceDocument" />
+          <NavigationProperty Name="Suggestions" Relationship="Self.FK__Suggestio__appli__5BE2A6F2" FromRole="Application" ToRole="Suggestion" />
+        </EntityType>
+        <EntityType Name="Budget">
+          <Key>
+            <PropertyRef Name="budgetId" />
+          </Key>
+          <Property Name="budgetId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="budgetAmount" Type="Int32" />
+          <Property Name="remainingAmount" Type="Int32" />
+          <Property Name="budget_session" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="status" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Committee">
+          <Key>
+            <PropertyRef Name="committeeId" />
+          </Key>
+          <Property Name="committeeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="facultyId" Type="Int32" />
+          <Property Name="status" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Faculty" Relationship="Self.FK__Committee__facul__5535A963" FromRole="Committee" ToRole="Faculty" />
+          <NavigationProperty Name="Suggestions" Relationship="Self.FK__Suggestio__commi__5AEE82B9" FromRole="Committee" ToRole="Suggestion" />
+        </EntityType>
+        <EntityType Name="Criterion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="val1" Type="String" MaxLength="15" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="val2" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="policy_id" Type="Int32" />
+          <Property Name="description" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="strength" Type="Int32" />
+          <NavigationProperty Name="Policy" Relationship="Self.FK__Criteria__policy__5629CD9C" FromRole="Criteria" ToRole="Policies" />
+        </EntityType>
+        <EntityType Name="EvidenceDocument">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="applicationId" Type="Int32" />
+          <Property Name="image" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="document_type" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Application" Relationship="Self.FK__EvidenceD__appli__571DF1D5" FromRole="EvidenceDocument" ToRole="Application" />
+        </EntityType>
+        <EntityType Name="Faculty">
+          <Key>
+            <PropertyRef Name="facultyId" />
+          </Key>
+          <Property Name="facultyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="contactNo" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="profilePic" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Committees" Relationship="Self.FK__Committee__facul__5535A963" FromRole="Faculty" ToRole="Committee" />
+          <NavigationProperty Name="graders" Relationship="Self.FK__graders__faculty__59063A47" FromRole="Faculty" ToRole="graders" />
+        </EntityType>
+        <EntityType Name="FinancialAid">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="amount" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="applicationStatus" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="aidtype" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="applicationId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="grader">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="facultyId" Type="Int32" />
+          <Property Name="session" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="feedback" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="studentId" Type="Int32" />
+          <Property Name="status" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="comment" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Faculty" Relationship="Self.FK__graders__faculty__59063A47" FromRole="graders" ToRole="Faculty" />
+          <NavigationProperty Name="Student" Relationship="Self.FK__graders__student__5812160E" FromRole="graders" ToRole="Student" />
+        </EntityType>
+        <EntityType Name="MeritBase">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="studentId" Type="Int32" />
+          <Property Name="session" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="position" Type="Int32" />
+          <NavigationProperty Name="Student" Relationship="Self.FK__MeritBase__stude__59FA5E80" FromRole="MeritBase" ToRole="Student" />
+        </EntityType>
+        <EntityType Name="Policy">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="policy1" Type="String" MaxLength="15" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="session" Type="String" MaxLength="15" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="policyfor" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Criteria" Relationship="Self.FK__Criteria__policy__5629CD9C" FromRole="Policies" ToRole="Criteria" />
+        </EntityType>
+        <EntityType Name="Session">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="session1" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="start_date" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="end_date" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="submission_date" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="student_id" />
+          </Key>
+          <Property Name="arid_no" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="semester" Type="Int32" Nullable="false" />
+          <Property Name="cgpa" Type="Double" />
+          <Property Name="section" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="degree" Type="String" MaxLength="10" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="father_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="gender" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="student_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="profile_image" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Applications" Relationship="Self.FK__Applicati__stude__5441852A" FromRole="Student" ToRole="Application" />
+          <NavigationProperty Name="graders" Relationship="Self.FK__graders__student__5812160E" FromRole="Student" ToRole="graders" />
+          <NavigationProperty Name="MeritBases" Relationship="Self.FK__MeritBase__stude__59FA5E80" FromRole="Student" ToRole="MeritBase" />
+        </EntityType>
+        <EntityType Name="Suggestion">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="comment" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="committeeId" Type="Int32" />
+          <Property Name="applicationId" Type="Int32" Nullable="false" />
+          <Property Name="status" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="amount" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Application" Relationship="Self.FK__Suggestio__appli__5BE2A6F2" FromRole="Suggestion" ToRole="Application" />
+          <NavigationProperty Name="Committee" Relationship="Self.FK__Suggestio__commi__5AEE82B9" FromRole="Suggestion" ToRole="Committee" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="userName" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="password" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="role" Type="Int32" />
+          <Property Name="profileId" Type="Int32" />
+        </EntityType>
+        <Association Name="FK__Applicati__stude__5441852A">
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <End Role="Application" Type="Self.Application" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="Application">
+              <PropertyRef Name="studentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__EvidenceD__appli__571DF1D5">
+          <End Role="Application" Type="Self.Application" Multiplicity="0..1" />
+          <End Role="EvidenceDocument" Type="Self.EvidenceDocument" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="applicationID" />
+            </Principal>
+            <Dependent Role="EvidenceDocument">
+              <PropertyRef Name="applicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Suggestio__appli__5BE2A6F2">
+          <End Role="Application" Type="Self.Application" Multiplicity="1" />
+          <End Role="Suggestion" Type="Self.Suggestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Application">
+              <PropertyRef Name="applicationID" />
+            </Principal>
+            <Dependent Role="Suggestion">
+              <PropertyRef Name="applicationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Committee__facul__5535A963">
+          <End Role="Faculty" Type="Self.Faculty" Multiplicity="0..1" />
+          <End Role="Committee" Type="Self.Committee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Faculty">
+              <PropertyRef Name="facultyId" />
+            </Principal>
+            <Dependent Role="Committee">
+              <PropertyRef Name="facultyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Suggestio__commi__5AEE82B9">
+          <End Role="Committee" Type="Self.Committee" Multiplicity="0..1" />
+          <End Role="Suggestion" Type="Self.Suggestion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Committee">
+              <PropertyRef Name="committeeId" />
+            </Principal>
+            <Dependent Role="Suggestion">
+              <PropertyRef Name="committeeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Criteria__policy__5629CD9C">
+          <End Role="Policies" Type="Self.Policy" Multiplicity="0..1" />
+          <End Role="Criteria" Type="Self.Criterion" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Policies">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Criteria">
+              <PropertyRef Name="policy_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__graders__faculty__59063A47">
+          <End Role="Faculty" Type="Self.Faculty" Multiplicity="0..1" />
+          <End Role="graders" Type="Self.grader" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Faculty">
+              <PropertyRef Name="facultyId" />
+            </Principal>
+            <Dependent Role="graders">
+              <PropertyRef Name="facultyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__graders__student__5812160E">
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <End Role="graders" Type="Self.grader" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="graders">
+              <PropertyRef Name="studentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__MeritBase__stude__59FA5E80">
+          <End Role="Student" Type="Self.Student" Multiplicity="0..1" />
+          <End Role="MeritBase" Type="Self.MeritBase" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Student">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="MeritBase">
+              <PropertyRef Name="studentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="FAAToolEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Admins" EntityType="Self.Admin" />
+          <EntitySet Name="Amounts" EntityType="Self.Amount" />
+          <EntitySet Name="Applications" EntityType="Self.Application" />
+          <EntitySet Name="Budgets" EntityType="Self.Budget" />
+          <EntitySet Name="Committees" EntityType="Self.Committee" />
+          <EntitySet Name="Criteria" EntityType="Self.Criterion" />
+          <EntitySet Name="EvidenceDocuments" EntityType="Self.EvidenceDocument" />
+          <EntitySet Name="Faculties" EntityType="Self.Faculty" />
+          <EntitySet Name="FinancialAids" EntityType="Self.FinancialAid" />
+          <EntitySet Name="graders" EntityType="Self.grader" />
+          <EntitySet Name="MeritBases" EntityType="Self.MeritBase" />
+          <EntitySet Name="Policies" EntityType="Self.Policy" />
+          <EntitySet Name="Sessions" EntityType="Self.Session" />
+          <EntitySet Name="Students" EntityType="Self.Student" />
+          <EntitySet Name="Suggestions" EntityType="Self.Suggestion" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK__Applicati__stude__5441852A" Association="Self.FK__Applicati__stude__5441852A">
+            <End Role="Student" EntitySet="Students" />
+            <End Role="Application" EntitySet="Applications" />
+          </AssociationSet>
+          <AssociationSet Name="FK__EvidenceD__appli__571DF1D5" Association="Self.FK__EvidenceD__appli__571DF1D5">
+            <End Role="Application" EntitySet="Applications" />
+            <End Role="EvidenceDocument" EntitySet="EvidenceDocuments" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Suggestio__appli__5BE2A6F2" Association="Self.FK__Suggestio__appli__5BE2A6F2">
+            <End Role="Application" EntitySet="Applications" />
+            <End Role="Suggestion" EntitySet="Suggestions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Committee__facul__5535A963" Association="Self.FK__Committee__facul__5535A963">
+            <End Role="Faculty" EntitySet="Faculties" />
+            <End Role="Committee" EntitySet="Committees" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Suggestio__commi__5AEE82B9" Association="Self.FK__Suggestio__commi__5AEE82B9">
+            <End Role="Committee" EntitySet="Committees" />
+            <End Role="Suggestion" EntitySet="Suggestions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Criteria__policy__5629CD9C" Association="Self.FK__Criteria__policy__5629CD9C">
+            <End Role="Policies" EntitySet="Policies" />
+            <End Role="Criteria" EntitySet="Criteria" />
+          </AssociationSet>
+          <AssociationSet Name="FK__graders__faculty__59063A47" Association="Self.FK__graders__faculty__59063A47">
+            <End Role="Faculty" EntitySet="Faculties" />
+            <End Role="graders" EntitySet="graders" />
+          </AssociationSet>
+          <AssociationSet Name="FK__graders__student__5812160E" Association="Self.FK__graders__student__5812160E">
+            <End Role="Student" EntitySet="Students" />
+            <End Role="graders" EntitySet="graders" />
+          </AssociationSet>
+          <AssociationSet Name="FK__MeritBase__stude__59FA5E80" Association="Self.FK__MeritBase__stude__59FA5E80">
+            <End Role="Student" EntitySet="Students" />
+            <End Role="MeritBase" EntitySet="MeritBases" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="FAAToolModelStoreContainer" CdmEntityContainer="FAAToolEntities">
+          <EntitySetMapping Name="Admins">
+            <EntityTypeMapping TypeName="FAAToolModel.Admin">
+              <MappingFragment StoreEntitySet="Admin">
+                <ScalarProperty Name="AdminID" ColumnName="AdminID" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ContactNo" ColumnName="ContactNo" />
+                <ScalarProperty Name="profilepic" ColumnName="profilepic" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Amounts">
+            <EntityTypeMapping TypeName="FAAToolModel.Amount">
+              <MappingFragment StoreEntitySet="Amount">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="first_position" ColumnName="first_position" />
+                <ScalarProperty Name="second_position" ColumnName="second_position" />
+                <ScalarProperty Name="third_position" ColumnName="third_position" />
+                <ScalarProperty Name="session" ColumnName="session" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Applications">
+            <EntityTypeMapping TypeName="FAAToolModel.Application">
+              <MappingFragment StoreEntitySet="Application">
+                <ScalarProperty Name="applicationID" ColumnName="applicationID" />
+                <ScalarProperty Name="applicationDate" ColumnName="applicationDate" />
+                <ScalarProperty Name="reason" ColumnName="reason" />
+                <ScalarProperty Name="requiredAmount" ColumnName="requiredAmount" />
+                <ScalarProperty Name="studentId" ColumnName="studentId" />
+                <ScalarProperty Name="session" ColumnName="session" />
+                <ScalarProperty Name="father_status" ColumnName="father_status" />
+                <ScalarProperty Name="house" ColumnName="house" />
+                <ScalarProperty Name="guardian_name" ColumnName="guardian_name" />
+                <ScalarProperty Name="guardian_contact" ColumnName="guardian_contact" />
+                <ScalarProperty Name="jobtitle" ColumnName="jobtitle" />
+                <ScalarProperty Name="salary" ColumnName="salary" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Budgets">
+            <EntityTypeMapping TypeName="FAAToolModel.Budget">
+              <MappingFragment StoreEntitySet="Budget">
+                <ScalarProperty Name="budgetId" ColumnName="budgetId" />
+                <ScalarProperty Name="budgetAmount" ColumnName="budgetAmount" />
+                <ScalarProperty Name="remainingAmount" ColumnName="remainingAmount" />
+                <ScalarProperty Name="budget_session" ColumnName="budget_session" />
+                <ScalarProperty Name="status" ColumnName="status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Committees">
+            <EntityTypeMapping TypeName="FAAToolModel.Committee">
+              <MappingFragment StoreEntitySet="Committee">
+                <ScalarProperty Name="committeeId" ColumnName="committeeId" />
+                <ScalarProperty Name="facultyId" ColumnName="facultyId" />
+                <ScalarProperty Name="status" ColumnName="status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Criteria">
+            <EntityTypeMapping TypeName="FAAToolModel.Criterion">
+              <MappingFragment StoreEntitySet="Criteria">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="val1" ColumnName="val1" />
+                <ScalarProperty Name="val2" ColumnName="val2" />
+                <ScalarProperty Name="policy_id" ColumnName="policy_id" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="strength" ColumnName="strength" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EvidenceDocuments">
+            <EntityTypeMapping TypeName="FAAToolModel.EvidenceDocument">
+              <MappingFragment StoreEntitySet="EvidenceDocument">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="applicationId" ColumnName="applicationId" />
+                <ScalarProperty Name="image" ColumnName="image" />
+                <ScalarProperty Name="document_type" ColumnName="document_type" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Faculties">
+            <EntityTypeMapping TypeName="FAAToolModel.Faculty">
+              <MappingFragment StoreEntitySet="Faculty">
+                <ScalarProperty Name="facultyId" ColumnName="facultyId" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="contactNo" ColumnName="contactNo" />
+                <ScalarProperty Name="profilePic" ColumnName="profilePic" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FinancialAids">
+            <EntityTypeMapping TypeName="FAAToolModel.FinancialAid">
+              <MappingFragment StoreEntitySet="FinancialAid">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="amount" ColumnName="amount" />
+                <ScalarProperty Name="applicationStatus" ColumnName="applicationStatus" />
+                <ScalarProperty Name="aidtype" ColumnName="aidtype" />
+                <ScalarProperty Name="applicationId" ColumnName="applicationId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="graders">
+            <EntityTypeMapping TypeName="FAAToolModel.grader">
+              <MappingFragment StoreEntitySet="graders">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="facultyId" ColumnName="facultyId" />
+                <ScalarProperty Name="session" ColumnName="session" />
+                <ScalarProperty Name="feedback" ColumnName="feedback" />
+                <ScalarProperty Name="studentId" ColumnName="studentId" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="comment" ColumnName="comment" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MeritBases">
+            <EntityTypeMapping TypeName="FAAToolModel.MeritBase">
+              <MappingFragment StoreEntitySet="MeritBase">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="studentId" ColumnName="studentId" />
+                <ScalarProperty Name="session" ColumnName="session" />
+                <ScalarProperty Name="position" ColumnName="position" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Policies">
+            <EntityTypeMapping TypeName="FAAToolModel.Policy">
+              <MappingFragment StoreEntitySet="Policies">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="policy1" ColumnName="policy" />
+                <ScalarProperty Name="session" ColumnName="session" />
+                <ScalarProperty Name="policyfor" ColumnName="policyfor" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Sessions">
+            <EntityTypeMapping TypeName="FAAToolModel.Session">
+              <MappingFragment StoreEntitySet="Session">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="session1" ColumnName="session" />
+                <ScalarProperty Name="start_date" ColumnName="start_date" />
+                <ScalarProperty Name="end_date" ColumnName="end_date" />
+                <ScalarProperty Name="submission_date" ColumnName="submission_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Students">
+            <EntityTypeMapping TypeName="FAAToolModel.Student">
+              <MappingFragment StoreEntitySet="Student">
+                <ScalarProperty Name="arid_no" ColumnName="arid_no" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="semester" ColumnName="semester" />
+                <ScalarProperty Name="cgpa" ColumnName="cgpa" />
+                <ScalarProperty Name="section" ColumnName="section" />
+                <ScalarProperty Name="degree" ColumnName="degree" />
+                <ScalarProperty Name="father_name" ColumnName="father_name" />
+                <ScalarProperty Name="gender" ColumnName="gender" />
+                <ScalarProperty Name="student_id" ColumnName="student_id" />
+                <ScalarProperty Name="profile_image" ColumnName="profile_image" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Suggestions">
+            <EntityTypeMapping TypeName="FAAToolModel.Suggestion">
+              <MappingFragment StoreEntitySet="Suggestion">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="comment" ColumnName="comment" />
+                <ScalarProperty Name="committeeId" ColumnName="committeeId" />
+                <ScalarProperty Name="applicationId" ColumnName="applicationId" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="amount" ColumnName="amount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="FAAToolModel.User">
+              <MappingFragment StoreEntitySet="Users">
+                <ScalarProperty Name="id" ColumnName="id" />
+                <ScalarProperty Name="userName" ColumnName="userName" />
+                <ScalarProperty Name="password" ColumnName="password" />
+                <ScalarProperty Name="role" ColumnName="role" />
+                <ScalarProperty Name="profileId" ColumnName="profileId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
