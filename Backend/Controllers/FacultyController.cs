@@ -325,50 +325,50 @@ namespace FinancialAidAllocation.Controllers
         }
 
 
-        private void AddStudentToDatabaseAndFinancialAid(Student student, string session, int position, double amount)
-        {
-            int semes = int.Parse(student.semester.ToString());
-            String aridno = student.arid_no;
+        //private void AddStudentToDatabaseAndFinancialAid(Student student, string session, int position, double amount)
+        //{
+        //    int semes = int.Parse(student.semester.ToString());
+        //    String aridno = student.arid_no;
 
-            if (!db.Students.Any(a => a.arid_no == aridno))
-            {
-                Student s = new Student
-                {
-                    arid_no = student.arid_no,
-                    name = student.name,
-                    semester = semes,
-                    cgpa = student.cgpa,
-                    prev_cgpa = student.prev_cgpa,
-                    section = student.section,
-                    degree = student.degree,
-                    father_name = student.father_name,
-                    gender = student.gender
-                };
-                db.Students.Add(s);
-                db.SaveChanges();
-            }
+        //    if (!db.Students.Any(a => a.arid_no == aridno))
+        //    {
+        //        Student s = new Student
+        //        {
+        //            arid_no = student.arid_no,
+        //            name = student.name,
+        //            semester = semes,
+        //            cgpa = student.cgpa,
+        //            prev_cgpa = student.prev_cgpa,
+        //            section = student.section,
+        //            degree = student.degree,
+        //            father_name = student.father_name,
+        //            gender = student.gender
+        //        };
+        //        db.Students.Add(s);
+        //        db.SaveChanges();
+        //    }
 
-            var studentinfo = db.Students.FirstOrDefault(st => st.arid_no == aridno);
-            var meritBase = new MeritBase
-            {
-                session = session,
-                position = position,
-                studentId = studentinfo.student_id
-            };
-            db.MeritBases.Add(meritBase);
-            db.SaveChanges();
+        //    var studentinfo = db.Students.FirstOrDefault(st => st.arid_no == aridno);
+        //    var meritBase = new MeritBase
+        //    {
+        //        session = session,
+        //        position = position,
+        //        studentId = studentinfo.student_id
+        //    };
+        //    db.MeritBases.Add(meritBase);
+        //    db.SaveChanges();
 
-            var financialAid = new FinancialAid
-            {
-                applicationStatus = "Accepted",
-                session = session,
-                aidtype = "MeritBase",
-                applicationId = studentinfo.student_id,
-                amount = amount.ToString()
-            };
-            db.FinancialAids.Add(financialAid);
-            db.SaveChanges();
-        }
+        //    var financialAid = new FinancialAid
+        //    {
+        //        applicationStatus = "Accepted",
+        //        session = session,
+        //        aidtype = "MeritBase",
+        //        applicationId = studentinfo.student_id,
+        //        amount = amount.ToString()
+        //    };
+        //    db.FinancialAids.Add(financialAid);
+        //    db.SaveChanges();
+        //}
 
         private double GetAmount(int position, string firstPositionAmount, string secondPositionAmount, string thirdPositionAmount)
         {
@@ -438,29 +438,108 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
+        //[HttpPost]
+        //public HttpResponseMessage RateGraderPerformance(int facultyId, int graderId, string rate, string comment)
+        //{
+        //    try
+        //    {
+        //        // Find the grader based on facultyId, graderId, and session, ensuring they haven't been rated already
+        //        var result = db.graders.FirstOrDefault(f => f.facultyId == facultyId && f.studentId == graderId && f.session == comment && f.feedback == null);
+
+        //        if (result != null)
+        //        {
+        //            result.feedback = double.Parse(rate); // Set the feedback rating
+        //            db.SaveChanges(); // Save the changes to the database
+
+        //            return Request.CreateResponse(HttpStatusCode.OK, "Rating added successfully.");
+        //        }
+        //        else
+        //        {
+        //            return Request.CreateResponse(HttpStatusCode.Conflict, "Already Rated");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception details here if necessary
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        //    }
+        //}
+
+
+        //[HttpPost]
+        //public HttpResponseMessage RateGraderPerformance(string facultyId, string studentId, string rate, string comment)
+        //{
+        //    try
+        //    {
+        //        int fId = int.Parse(facultyId);
+        //        int sId = int.Parse(studentId);
+        //        int feedbackRate = int.Parse(rate);
+
+        //        var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+        //        if (session == null)
+        //        {
+        //            return Request.CreateResponse(HttpStatusCode.NotFound, "Session not found");
+        //        }
+
+        //        var result = db.graders.FirstOrDefault(f =>
+        //            f.facultyId == fId &&
+        //            f.studentId == sId &&
+        //            f.session == session.session1 &&
+        //            f.feedback == null &&
+        //            f.comment == null);
+
+        //        if (result != null)
+        //        {
+        //            result.feedback = feedbackRate;
+        //            result.comment = comment;
+        //            db.SaveChanges();
+        //            return Request.CreateResponse(HttpStatusCode.OK,"Rate Successfully.");
+        //        }
+        //        else
+        //        {
+        //            return Request.CreateResponse(HttpStatusCode.Found, "Already Rated");
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        //    }
+        //}
+
         [HttpPost]
-        public HttpResponseMessage RateGraderPerformance(int facultyId, int graderId, string rate, string comment)
+        public HttpResponseMessage RateGraderPerformance(String facultyId, String studentId, String rate, String comment)
         {
             try
             {
-                // Find the grader based on facultyId, graderId, and session, ensuring they haven't been rated already
-                var result = db.graders.FirstOrDefault(f => f.facultyId == facultyId && f.studentId == graderId && f.session == comment && f.feedback == null);
+                int fId = int.Parse(facultyId);
+                int sId = int.Parse(studentId);
 
-                if (result != null)
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+
+                // Ensure both feedback and comment are null for valid update
+                var result = db.graders
+                               .Where(f => f.facultyId == fId && f.studentId == sId && f.session == session.session1)
+                               .FirstOrDefault();
+
+                // Only proceed if grader exists and feedback/comment haven't been set yet
+                if (result != null && result.feedback == null && result.comment == null)
                 {
-                    result.feedback = double.Parse(rate); // Set the feedback rating
-                    db.SaveChanges(); // Save the changes to the database
-
-                    return Request.CreateResponse(HttpStatusCode.OK, "Rating added successfully.");
+                    result.feedback = double.Parse(rate); // Convert rate string to double
+                    result.comment = comment;
+                    db.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK, "Rating Successful");
+                }
+                else if (result != null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.Found, "Already Rated");
                 }
                 else
                 {
-                    return Request.CreateResponse(HttpStatusCode.Conflict, "Already Rated");
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Grader not found");
                 }
             }
             catch (Exception ex)
             {
-                // Log the exception details here if necessary
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
@@ -502,6 +581,152 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+
+        [HttpPost]
+        public HttpResponseMessage DecideMeritBaseApplication(int id, String status)
+        {
+            try
+            {
+                var budget = db.Budgets.OrderByDescending(b => b.budgetId).FirstOrDefault();
+
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+                var record = db.MeritBases.Where(mr => mr.studentId == id && mr.session == session.session1).FirstOrDefault();
+                var result = db.FinancialAids.Where(fn => fn.applicationId == record.studentId).FirstOrDefault();
+                if (record != null && status == "Accepted")
+                {
+                    result.amount = "5000";
+                    result.applicationStatus = status;
+                    db.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK, "Accepted");
+                }
+                else if (status == "Rejected")
+                {
+
+                    var reservetoper = db.Students.Join
+                        (
+                            db.Reserves.Where(r => r.session == session.session1),
+                            st => st.student_id,
+                            res => res.student_id,
+                            (st, res) => new
+                            {
+                                st,
+                                res
+                            }
+                        );
+
+                    var alternateToper = reservetoper.OrderByDescending(rt => rt.st.cgpa).Select(s => new
+                    {
+                        s.st,
+                    }).FirstOrDefault();
+
+                    if (reservetoper != null)
+                    {
+
+                        MeritBase m = new MeritBase();
+                        m.session = session.session1;
+                        m.position = record.position;
+                        m.studentId = alternateToper.st.student_id;
+                        db.MeritBases.Add(m);
+                        db.SaveChanges();
+
+                        FinancialAid f = new FinancialAid();
+                        f.session = session.session1;
+                        f.amount = result.amount;
+                        f.applicationStatus = "Pending";
+                        f.aidtype = "MeritBase";
+                        f.applicationId = alternateToper.st.student_id;
+                        db.FinancialAids.Add(f);
+                        db.SaveChanges();
+                        result.applicationStatus = status;
+                        db.SaveChanges();
+
+                        var del = db.Reserves.Where(rev => rev.student_id == alternateToper.st.student_id).FirstOrDefault();
+                        db.Reserves.Remove(del);
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        result.applicationStatus = status;
+                        db.SaveChanges();
+                        var del = db.Reserves.Where(rev => rev.student_id == alternateToper.st.student_id).FirstOrDefault();
+                        db.Reserves.Remove(del);
+                        db.SaveChanges();
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, "Rejected");
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.ToString());
+            }
+        }
+
+        private void AddStudentToDatabaseAndFinancialAid(Student student, string session, int position, double amount)
+        {
+            int semes = int.Parse(student.semester.ToString());
+            String aridno = student.arid_no;
+
+            if (!db.Students.Any(a => a.arid_no == aridno))
+            {
+                Student s = new Student
+                {
+                    arid_no = student.arid_no,
+                    name = student.name,
+                    semester = semes,
+                    cgpa = student.cgpa,
+                    prev_cgpa = student.prev_cgpa,
+                    section = student.section,
+                    degree = student.degree,
+                    father_name = student.father_name,
+                    gender = student.gender
+                };
+                db.Students.Add(s);
+                db.SaveChanges();
+            }
+
+            var studentinfo = db.Students.FirstOrDefault(st => st.arid_no == aridno);
+
+
+            String aridNo = aridno.Split('-')[2];
+
+            if (!db.Users.Any(du => du.userName == aridNo))
+            {
+                User u = new User();
+                u.userName = aridno;
+                u.password = aridno;
+                u.role = 4;
+                u.profileId = studentinfo.student_id;
+
+                db.Users.Add(u);
+                db.SaveChanges();
+            }
+
+            var meritBase = new MeritBase
+            {
+                session = session,
+                position = position,
+                studentId = studentinfo.student_id
+            };
+            db.MeritBases.Add(meritBase);
+            db.SaveChanges();
+
+            var financialAid = new FinancialAid
+            {
+                applicationStatus = "Pending",
+                session = session,
+                aidtype = "MeritBase",
+                applicationId = studentinfo.student_id,
+                amount = amount.ToString()
+            };
+            db.FinancialAids.Add(financialAid);
+            db.SaveChanges();
+        }
+
 
     }
 }

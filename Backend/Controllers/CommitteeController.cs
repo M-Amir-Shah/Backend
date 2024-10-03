@@ -115,11 +115,17 @@ namespace FinancialAidAllocation.Controllers
         }
 
         [HttpPost]
-        public HttpResponseMessage GiveSuggestion(int committeeId, String status,int applicationId, String comment)
+        public HttpResponseMessage GiveSuggestion(int committeeId, String status, int applicationId, String comment, int amount)
         {
             try
             {
-                var sug = db.Suggestions.Where(su=>su.committeeId==committeeId && su.applicationId==applicationId).FirstOrDefault();
+                var sug = db.Suggestions.Where(su => su.committeeId == committeeId && su.applicationId == applicationId).FirstOrDefault();
+                String amt = null;
+                if (amount > 0)
+                {
+                    amt = amount.ToString();
+                }
+
                 if (sug == null)
                 {
                     Suggestion s = new Suggestion();
@@ -127,19 +133,164 @@ namespace FinancialAidAllocation.Controllers
                     s.committeeId = committeeId;
                     s.applicationId = applicationId;
                     s.status = status;
+                    s.amount = amt;
                     db.Suggestions.Add(s);
                     db.SaveChanges();
-                    return Request.CreateResponse(HttpStatusCode.OK);
+                    return Request.CreateResponse(HttpStatusCode.OK,"SuccessFully.");
                 }
-                else 
+                else
                 {
                     return Request.CreateResponse(HttpStatusCode.OK);
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError,ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
+        }
+
+        [HttpPost]
+        public HttpResponseMessage DecideMeritBaseApplication(int id, String status)
+        {
+            try
+            {
+                var budget = db.Budgets.OrderByDescending(b => b.budgetId).FirstOrDefault();
+
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+                var record = db.MeritBases.Where(mr => mr.studentId == id && mr.session == session.session1).FirstOrDefault();
+                var result = db.FinancialAids.Where(fn => fn.applicationId == record.studentId).FirstOrDefault();
+                if (record != null && status == "Accepted")
+                {
+                    result.amount = "15000";
+                    result.applicationStatus = status;
+                    db.SaveChanges();
+                    return Request.CreateResponse(HttpStatusCode.OK, "Accepted");
+                }
+                else if (status == "Rejected")
+                {
+
+                    var reservetoper = db.Students.Join
+                        (
+                            db.Reserves.Where(r => r.session == session.session1),
+                            st => st.student_id,
+                            res => res.student_id,
+                            (st, res) => new
+                            {
+                                st,
+                                res
+                            }
+                        );
+
+                    var alternateToper = reservetoper.OrderByDescending(rt => rt.st.cgpa).Select(s => new
+                    {
+                        s.st,
+                    }).FirstOrDefault();
+
+                    if (reservetoper != null)
+                    {
+
+                        MeritBase m = new MeritBase();
+                        m.session = session.session1;
+                        m.position = record.position;
+                        m.studentId = alternateToper.st.student_id;
+                        db.MeritBases.Add(m);
+                        db.SaveChanges();
+
+                        FinancialAid f = new FinancialAid();
+                        f.session = session.session1;
+                        f.amount = result.amount;
+                        f.applicationStatus = "Pending";
+                        f.aidtype = "MeritBase";
+                        f.applicationId = alternateToper.st.student_id;
+                        db.FinancialAids.Add(f);
+                        db.SaveChanges();
+                        result.applicationStatus = status;
+                        db.SaveChanges();
+
+                        var del = db.Reserves.Where(rev => rev.student_id == alternateToper.st.student_id).FirstOrDefault();
+                        db.Reserves.Remove(del);
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        result.applicationStatus = status;
+                        db.SaveChanges();
+                        var del = db.Reserves.Where(rev => rev.student_id == alternateToper.st.student_id).FirstOrDefault();
+                        db.Reserves.Remove(del);
+                        db.SaveChanges();
+                    }
+                    return Request.CreateResponse(HttpStatusCode.OK, "Rejected");
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Found");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.ToString());
+            }
+        }
+
+        private void AddStudentToDatabaseAndFinancialAid(Student student, string session, int position, double amount)
+        {
+            int semes = int.Parse(student.semester.ToString());
+            String aridno = student.arid_no;
+
+            if (!db.Students.Any(a => a.arid_no == aridno))
+            {
+                Student s = new Student
+                {
+                    arid_no = student.arid_no,
+                    name = student.name,
+                    semester = semes,
+                    cgpa = student.cgpa,
+                    prev_cgpa = student.prev_cgpa,
+                    section = student.section,
+                    degree = student.degree,
+                    father_name = student.father_name,
+                    gender = student.gender
+                };
+                db.Students.Add(s);
+                db.SaveChanges();
+            }
+
+            var studentinfo = db.Students.FirstOrDefault(st => st.arid_no == aridno);
+
+
+            String aridNo = aridno.Split('-')[2];
+
+            if (!db.Users.Any(du => du.userName == aridNo))
+            {
+                User u = new User();
+                u.userName = aridno;
+                u.password = aridno;
+                u.role = 4;
+                u.profileId = studentinfo.student_id;
+
+                db.Users.Add(u);
+                db.SaveChanges();
+            }
+
+            var meritBase = new MeritBase
+            {
+                session = session,
+                position = position,
+                studentId = studentinfo.student_id
+            };
+            db.MeritBases.Add(meritBase);
+            db.SaveChanges();
+
+            var financialAid = new FinancialAid
+            {
+                applicationStatus = "Pending",
+                session = session,
+                aidtype = "MeritBase",
+                applicationId = studentinfo.student_id,
+                amount = amount.ToString()
+            };
+            db.FinancialAids.Add(financialAid);
+            db.SaveChanges();
         }
 
 

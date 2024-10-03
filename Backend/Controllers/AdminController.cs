@@ -33,111 +33,7 @@ namespace FinancialAidAllocation.Controllers
             }
         }
 
-        [HttpPost]
-        public HttpResponseMessage AddPreviousCgpa()
-        {
-            try
-            {
-                Random rnd = new Random();
-                int minValue = 50;
-                int maxValue = 100;
 
-                var student = db.Students.ToList();
-                for (int i = 0; i < student.Count; i++)
-                {
-                    int randomNumber = rnd.Next(minValue, maxValue);
-                    int id = student[i].student_id;
-                    var std = db.Students.Where(st => st.student_id == id).FirstOrDefault();
-                    if (std.semester == 1)
-                    {
-                        std.prev_cgpa = double.Parse(randomNumber.ToString());
-                    }
-                    else if (std.semester >= 2)
-                    {
-                        if (std.cgpa > 3.9)
-                        {
-                            std.prev_cgpa = std.cgpa;
-                        }
-                        else if (std.cgpa >= 3.7 && std.cgpa < 3.9)
-                        {
-                            std.prev_cgpa = std.cgpa - 0.0001;
-
-                        }
-                        else if (std.cgpa >= 3.5 && std.cgpa < 3.7)
-                        {
-                            std.prev_cgpa = std.cgpa - 0.0008;
-                        }
-                        else if (std.cgpa >= 3.3 && std.cgpa < 3.5)
-                        {
-                            std.prev_cgpa = std.cgpa - 0.010;
-                        }
-                        else if (std.cgpa >= 3.0 && std.cgpa < 3.3)
-                        {
-                            std.prev_cgpa = std.cgpa - 0.02;
-                        }
-                        else if (std.cgpa >= 2.7 && std.cgpa < 3.0)
-                        {
-                            std.prev_cgpa = std.cgpa - 0.05;
-                        }
-                        else
-                        {
-                            std.prev_cgpa = std.cgpa - 0.15;
-                        }
-                    }
-                }
-                db.SaveChanges();
-
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-
-        [HttpPost]
-        public HttpResponseMessage AddBudget(int amount)
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-                if (amount > 0)
-                {
-                    var paisa = db.Budgets.OrderByDescending(bd => bd.budgetId).FirstOrDefault();
-                    Budget b;
-                    if (paisa != null)
-                    {
-                        b = new Budget();
-                        b.budgetAmount = amount;
-                        b.remainingAmount = paisa.remainingAmount + amount;
-                        b.status = "A";
-                        b.budget_session = session.session1;
-                    }
-                    else
-                    {
-                        b = new Budget();
-                        b.budgetAmount = amount;
-                        b.remainingAmount = amount;
-                        b.status = "A";
-                        b.budget_session = session.session1;
-
-                    }
-                    db.Budgets.Add(b);
-                    db.SaveChanges();
-                    var Remainbalance = db.Budgets.OrderByDescending(bd => bd.budgetId).FirstOrDefault();
-                    return Request.CreateResponse(HttpStatusCode.OK, Remainbalance.remainingAmount);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.Unauthorized, "Add Some Ammount");
-                }
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
         [HttpGet]
         public HttpResponseMessage FacultyMembers()
         {
@@ -157,31 +53,96 @@ namespace FinancialAidAllocation.Controllers
             try
             {
                 var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-                var students = db.MeritBases.Where(mr => mr.session == session.session1).Join(
-                    db.Students,
-                    m => m.studentId,
-                    s => s.student_id,
-                    (m, s) => new
+                var std = db.MeritBases.Where(mer => mer.session == session.session1).Join
+                    (
+                    db.FinancialAids.Where(fn => fn.session == session.session1 && fn.applicationStatus.ToLower() == "accepted"),
+                    mr => mr.studentId,
+                    fa => fa.applicationId,
+                    (mr, fa) => new
                     {
-                        s.student_id,
-                        s.arid_no,
-                        s.name,
-                        s.profile_image,
-                        s.gender,
-                        s.degree,
-                        s.semester,
-                        s.section,
-                        s.cgpa,
-                        m.position
+                        mr,
+                        fa
                     }
                     );
-                if (students.ToList().Count < 1)
+
+                var info = std.Join(
+
+                    db.Students,
+                    s => s.mr.studentId,
+                    st => st.student_id,
+                    (s, st) => new
+                    {
+                        s,
+                        st,
+                    }
+                    ).Select(s => new
+                    {
+                        s.st.student_id,
+                        s.st.arid_no,
+                        s.st.name,
+                        s.st.prev_cgpa,
+                        s.st.profile_image,
+                        s.st.gender,
+                        s.st.degree,
+                        s.st.semester,
+                        s.st.section,
+                        s.st.cgpa,
+                        s.s.mr.position,
+                        s.s.fa.amount,
+                        s.s.fa.aidtype,
+                        s.s.fa.applicationStatus,
+                    }).ToList();
+                /*                var students = db.MeritBases.Where(mr=>mr.session==session.session1).Join(
+                                    db.Students,
+                                    m => m.studentId,
+                                    s => s.student_id,
+                                    (m, s) => new
+                                    {
+                                        s.student_id,
+                                        s.arid_no,
+                                        s.name,
+                                        s.prev_cgpa,
+                                        s.profile_image,
+                                        s.gender,
+                                        s.degree,
+                                        s.semester,
+                                        s.section,
+                                        s.cgpa,
+                                        m.position
+                                    }
+                                    );
+                                var info = students.Join(
+                                    db.FinancialAids.Where(f=>f.aidtype.ToLower()=="meritbase"),
+                                    std=>std.student_id,
+                                    fin=>fin.applicationId,
+                                    (std,fin) => new 
+                                    {
+                                        std,fin
+                                    }
+                                    ).Select(s => new
+                                    {
+                                        s.std.student_id,
+                                        s.std.arid_no,
+                                        s.std.name,
+                                        s.std.prev_cgpa,
+                                        s.std.profile_image,
+                                        s.std.gender,
+                                        s.std.degree,
+                                        s.std.semester,
+                                        s.std.section,
+                                        s.std.cgpa,
+                                        s.std.position,
+                                        s.fin.amount,
+                                        s.fin.aidtype,
+                                        s.fin.applicationStatus,
+                                    });*/
+                if (std.ToList().Count < 1)
                 {
                     return Request.CreateResponse(HttpStatusCode.BadRequest);
                 }
                 else
                 {
-                    return Request.CreateResponse(HttpStatusCode.OK, students);
+                    return Request.CreateResponse(HttpStatusCode.OK, info);
                 }
             }
             catch (Exception ex)
@@ -189,7 +150,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
-
         private string GetAmount(int position, int first, int second, int third)
         {
             switch (position)
@@ -274,7 +234,153 @@ namespace FinancialAidAllocation.Controllers
             }
         }
 
+        [HttpGet]
+        public HttpResponseMessage UnAssignedFaculty()
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
 
+                var query = from f in db.Faculties
+                            join g in db.graders.Where(gr => gr.session == session.session1)
+                            on f.facultyId equals g.facultyId into
+                            joinedRecord
+                            from g in joinedRecord.DefaultIfEmpty()
+                            where g == null
+                            select f;
+                return Request.CreateResponse(HttpStatusCode.OK, query);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage unAssignedGraders1()
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+
+                // Need-based accepted applications
+                var needBaseAcceptedApplications = from fa in db.FinancialAids
+                                                   where fa.applicationStatus.ToLower() == "accepted" && fa.aidtype.ToLower() == "needbase"
+                                                   join ap in db.Applications.Where(app => app.session == session.session1)
+                                                   on fa.applicationId equals ap.applicationID
+                                                   select new { ap.studentId };
+
+                // Need-based accepted students
+                var needBaseAcceptedStudents = from app in needBaseAcceptedApplications
+                                               join st in db.Students
+                                               on app.studentId equals st.student_id
+                                               select st;
+
+                // Merit-based accepted applications
+                var meritbaseAcceptedApplication = from fa in db.FinancialAids
+                                                   where fa.applicationStatus.ToLower() == "accepted" && fa.aidtype.ToLower() == "meritbase" && fa.session == session.session1
+                                                   join ap in db.MeritBases.Where(app => app.session == session.session1)
+                                                   on fa.applicationId equals ap.studentId
+                                                   select new { ap.studentId };
+
+                // Merit-based accepted students
+                var meritBaseAcceptedStudents = from fa in meritbaseAcceptedApplication
+                                                join st in db.Students
+                                                on fa.studentId equals st.student_id
+                                                select st;
+
+                // Combine need-based and merit-based accepted students
+                var acceptedStudents = needBaseAcceptedStudents.Union(meritBaseAcceptedStudents);
+
+                // Left join with graders to find unassigned graders and calculate average rating
+                // Updated Left join with graders to find unassigned graders and calculate average rating
+                var result = from student in acceptedStudents
+                             join grader in db.graders.Where(gr => gr.session == session.session1)
+                             on student.student_id equals grader.studentId into gradings
+                             from grading in gradings.DefaultIfEmpty()
+                             let avgRating = db.graders.Where(r => r.studentId == student.student_id).Average(r => (double?)r.feedback)
+                             select new
+                             {
+                                 student.name,
+                                 student.arid_no,
+                                 student.semester,
+                                 student.cgpa,
+                                 student.section,
+                                 student.degree,
+                                 student.father_name,
+                                 student.gender,
+                                 student.student_id,
+                                 student.profile_image,
+                                 student.prev_cgpa,
+                                 AverageRating = avgRating
+                             };
+
+                var unassignedGradersWithRatings = result.ToList();
+
+
+                return Request.CreateResponse(HttpStatusCode.OK, unassignedGradersWithRatings);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage Merit()
+        {
+            try
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage pendingApplication()
+        {
+            try
+            {
+
+                var query = from s in db.Students
+                            join a in db.Applications
+                            on s.student_id equals
+                            a.studentId into joinedRecords
+                            from a in
+                                joinedRecords.DefaultIfEmpty()
+                            where a != null
+                            select a;
+                var pendingApplication = from q in query
+                                         join f in db.FinancialAids
+                                         on q.applicationID equals f.applicationId into
+                                         joinedRecords
+                                         from f in joinedRecords.DefaultIfEmpty()
+                                         where f != null
+                                         select q;
+                return Request.CreateResponse(HttpStatusCode.OK, query);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage GiveRating()
+        {
+            try
+            {
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
 
         [HttpGet]
         public HttpResponseMessage CommitteeMembers()
@@ -341,8 +447,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
-
         [HttpGet]
         public HttpResponseMessage getAllBudget()
         {
@@ -377,6 +481,530 @@ namespace FinancialAidAllocation.Controllers
             catch (Exception ex)
             {
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage RejectedApplication()
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+
+                var applications = db.Applications.Where(ap => ap.session == session.session1)
+                                          .GroupJoin(db.Suggestions,
+                                              application => application.applicationID,
+                                              suggestion => suggestion.applicationId,
+                                              (application, suggestion) => new
+                                              {
+                                                  application,
+                                                  suggestion
+                                              });
+                var result = applications.Join(db.Students,
+                    ap => ap.application.studentId,
+                    s => s.student_id,
+                    (appplication, student) => new
+                    {
+                        student.arid_no,
+                        student.name,
+                        student.student_id,
+                        student.father_name,
+                        student.gender,
+                        student.degree,
+                        student.cgpa,
+                        student.semester,
+                        student.section,
+                        student.profile_image,
+                        appplication.application.applicationDate,
+                        appplication.application.reason,
+                        appplication.application.requiredAmount,
+                        appplication.application.EvidenceDocuments,
+                        appplication.application.applicationID,
+                        appplication.application.session,
+                        appplication.application.father_status,
+                        appplication.application.jobtitle,
+                        appplication.application.salary,
+                        appplication.application.guardian_contact,
+                        appplication.application.house,
+                        appplication.application.guardian_name,
+                        appplication.suggestion,
+                    });
+
+                var pendingapplication = result.Join(
+                    db.FinancialAids,
+                    re => re.applicationID,
+                    f => f.applicationId,
+                    (re, f) => new
+                    {
+                        re,
+                        f.applicationStatus
+                    }
+                    );
+
+                return Request.CreateResponse(HttpStatusCode.OK, pendingapplication.Where(p => p.applicationStatus.ToLower().Equals("rejected")));
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+        //[HttpGet]
+        //public HttpResponseMessage MeritBaseRejectedApplication()
+        //{
+        //    try
+        //    {
+        //        var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+        //        var rejectedApplication = db.MeritBases.Where(mr => mr.session == session.session1).Join(
+        //            db.FinancialAids.Where(fn => fn.session == session.session1 && fn.applicationStatus.ToLower() == "rejected"),
+        //            m => m.studentId,
+        //            f => f.applicationId,
+        //            (m, f) => new
+        //            {
+        //                m,
+        //                f
+        //            }
+        //            );
+        //        var result = rejectedApplication.Join
+        //            (
+        //            db.Students,
+        //            ra => ra.m.studentId,
+        //            s => s.student_id,
+        //            (re, s) => new
+        //            {
+        //                re.f.aidtype,
+        //                re.f.applicationStatus,
+        //                s.name,
+        //                s.arid_no,
+        //                s.profile_image,
+        //                s.cgpa,
+        //                s.prev_cgpa,
+        //                s.degree,
+        //                s.gender,
+        //                s.father_name,
+        //                s.section,
+        //                s.semester,
+        //                s.student_id,
+        //            }
+        //            );
+        //        return Request.CreateResponse(HttpStatusCode.OK, result);
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+        //    }
+        //}
+
+
+
+
+
+        [HttpGet]
+        public HttpResponseMessage MeritBaseRejectedApplication()
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+                var rejectedApplication = db.MeritBases.Where(mr => mr.session == session.session1).Join(
+                    db.FinancialAids.Where(fn => fn.session == session.session1 && fn.applicationStatus.ToLower() == "rejected"),
+                    m => m.studentId,
+                    f => f.applicationId,
+                    (m, f) => new
+                    {
+                        m,
+                        f
+                    }
+                    );
+                var result = rejectedApplication.Join
+                    (
+                    db.Students,
+                    ra => ra.m.studentId,
+                    s => s.student_id,
+                    (re, s) => new
+                    {
+                        re.f.aidtype,
+                        re.f.applicationStatus,
+                        re.f.amount, // Add the amount field here
+                        s.name,
+                        s.arid_no,
+                        s.profile_image,
+                        s.cgpa,
+                        s.prev_cgpa,
+                        s.degree,
+                        s.gender,
+                        s.father_name,
+                        s.section,
+                        s.semester,
+                        s.student_id,
+                    }
+                    );
+                return Request.CreateResponse(HttpStatusCode.OK, result);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
+            }
+        }
+
+
+
+
+
+
+        [HttpGet]
+        public HttpResponseMessage getStudentApplicationStatus(int id)
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+
+                var count = db.Applications.Where(c => c.studentId == 1d && c.session == session.session1).FirstOrDefault();
+                if (count != null)
+                {
+                    var result = db.Applications.Where(ap => ap.studentId == id).Join(
+                    db.FinancialAids,
+                    a => a.applicationID,
+                    f => f.applicationId,
+                    (a, f) => new
+                    {
+                        //                        a.applicationID,
+                        f.applicationStatus,
+                    }
+                    );
+                    return Request.CreateResponse(HttpStatusCode.OK, result);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Submitted");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage gradersInformation(int id)
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+                var graders = db.Faculties.Where(fal => fal.facultyId == id).Join
+                    (
+                        db.graders.Where(gr => gr.facultyId == id && gr.session == session.session1),
+                        f => f.facultyId,
+                        g => g.facultyId,
+                        (f, g) => new
+                        {
+                            g.Student.name,
+                            g.Student.arid_no,
+                            g.studentId,
+                            g.Student.profile_image,
+                            g.Student.gender,
+                            f.facultyId,
+                        }
+                    );
+                if (graders.ToList().Count < 1)
+                {
+                    return Request.CreateResponse(HttpStatusCode.BadRequest);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.OK, graders);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        //[HttpGet]
+        //public HttpResponseMessage ApplicationSuggestions()
+        //{
+        //    try
+        //    {
+        //        var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+        //        var totalCommitteeMembers = db.Committees.Where(c => c.status == "1").ToList().Count();
+
+        //        var applications = db.Applications.Where(app => app.session == session.session1)
+        //                                   .GroupJoin(db.Suggestions,
+        //                                       application => application.applicationID,
+        //                                       suggestion => suggestion.applicationId,
+        //                                       (application, suggestion) => new
+        //                                       {
+        //                                           application,
+        //                                           suggestion
+        //                                       })
+        //            .Where(ap => ap.suggestion.ToList().Count == totalCommitteeMembers);
+
+        //        var result = applications.Join(db.Students,
+        //            ap => ap.application.studentId,
+        //            s => s.student_id,
+        //            (appplication, student) => new
+        //            {
+        //                student.arid_no,
+        //                student.name,
+        //                student.student_id,
+        //                student.father_name,
+        //                student.gender,
+        //                student.degree,
+        //                student.cgpa,
+        //                student.semester,
+        //                student.section,
+        //                student.profile_image,
+        //                appplication.application.applicationDate,
+        //                appplication.application.reason,
+        //                appplication.application.requiredAmount,
+        //                appplication.application.EvidenceDocuments,
+        //                appplication.application.applicationID,
+        //                appplication.application.session,
+        //                appplication.application.father_status,
+        //                appplication.application.jobtitle,
+        //                appplication.application.salary,
+        //                appplication.application.guardian_contact,
+        //                appplication.application.house,
+        //                appplication.application.guardian_name,
+        //                appplication.suggestion,
+        //            });
+
+        //        var pendingapplication = result.Join(
+        //            db.FinancialAids,
+        //            re => re.applicationID,
+        //            f => f.applicationId,
+        //            (re, f) => new
+        //            {
+        //                re,
+        //                f.applicationStatus
+        //            }
+        //            );
+
+        //        return Request.CreateResponse(HttpStatusCode.OK, pendingapplication.Where(p => p.applicationStatus.ToLower() == "pending"));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+        //    }
+        //}
+
+        [HttpGet]
+        public HttpResponseMessage ApplicationSuggestions()
+        {
+            try
+            {
+                // Fetch the current and previous session
+                var previousSession = db.Sessions.OrderByDescending(se => se.id).Skip(1).FirstOrDefault();
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+
+                if (session == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NotFound, "Current session not found.");
+                }
+
+                // Get the total number of active committee members
+                var totalCommitteeMembers = db.Committees.Count(c => c.status == "1");
+
+                // Retrieve applications with suggestions equal to total committee members
+                var applications = db.Applications
+                    .Where(app => app.session == session.session1)
+                    .GroupJoin(db.Suggestions,
+                        application => application.applicationID,
+                        suggestion => suggestion.applicationId,
+                        (application, suggestions) => new { application, suggestions })
+                    .Where(ap => ap.suggestions.Count() == totalCommitteeMembers);
+
+                // Join with the students table and build the final result
+                var result = applications.Join(db.Students,
+                    ap => ap.application.studentId,
+                    s => s.student_id,
+                    (ap, student) => new
+                    {
+                        student.arid_no,
+                        student.name,
+                        student.student_id,
+                        student.father_name,
+                        student.gender,
+                        student.degree,
+                        student.cgpa,
+                        student.semester,
+                        student.section,
+                        student.profile_image,
+                        ap.application.applicationDate,
+                        ap.application.reason,
+                        ap.application.requiredAmount,
+                        ap.application.EvidenceDocuments,
+                        ap.application.applicationID,
+                        ap.application.session,
+                        ap.application.father_status,
+                        ap.application.jobtitle,
+                        ap.application.salary,
+                        ap.application.guardian_contact,
+                        ap.application.house,
+                        ap.application.guardian_name,
+                        ap.suggestions
+                    });
+
+                // Filter pending applications based on financial aid status
+                var pendingApplications = result.Join(
+                    db.FinancialAids,
+                    re => re.applicationID,
+                    f => f.applicationId,
+                    (re, f) => new { re, f.applicationStatus })
+                    .Where(p => p.applicationStatus.ToLower() == "pending");
+
+                // Build the final result set
+                var finalResult = pendingApplications.Select(pa => new
+                {
+                    pa.re.arid_no,
+                    pa.re.name,
+                    pa.re.student_id,
+                    pa.re.father_name,
+                    pa.re.gender,
+                    pa.re.degree,
+                    pa.re.cgpa,
+                    pa.re.semester,
+                    pa.re.section,
+                    pa.re.profile_image,
+                    pa.re.applicationDate,
+                    pa.re.reason,
+                    pa.re.requiredAmount,
+                    pa.re.EvidenceDocuments,
+                    pa.re.applicationID,
+                    pa.re.session,
+                    pa.re.father_status,
+                    pa.re.jobtitle,
+                    pa.re.salary,
+                    pa.re.guardian_contact,
+                    pa.re.house,
+                    pa.re.guardian_name,
+                    Suggestions = pa.re.suggestions.Select(s => new
+                    {
+                        s.status,
+                        s.comment,
+                        amount = s.amount,
+                        CommitteeMemberName = db.Faculties
+                            .Where(fac => fac.facultyId == db.Committees.FirstOrDefault(c => c.committeeId == s.committeeId).facultyId)
+                            .Select(fac => fac.name).FirstOrDefault()
+                    }).ToList(),
+                });
+
+                // Return the result
+                return Request.CreateResponse(HttpStatusCode.OK, finalResult);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (consider using a logging framework)
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        }
+
+
+
+        [HttpPost]
+        public HttpResponseMessage AddPreviousCgpa()
+        {
+            try
+            {
+                Random rnd = new Random();
+                int minValue = 50;
+                int maxValue = 100;
+
+                var student = db.Students.ToList();
+                for (int i = 0; i < student.Count; i++)
+                {
+                    int randomNumber = rnd.Next(minValue, maxValue);
+                    int id = student[i].student_id;
+                    var std = db.Students.Where(st => st.student_id == id).FirstOrDefault();
+                    if (std.semester == 1)
+                    {
+                        std.prev_cgpa = double.Parse(randomNumber.ToString());
+                    }
+                    else if (std.semester >= 2)
+                    {
+                        if (std.cgpa > 3.9)
+                        {
+                            std.prev_cgpa = std.cgpa;
+                        }
+                        else if (std.cgpa >= 3.7 && std.cgpa < 3.9)
+                        {
+                            std.prev_cgpa = std.cgpa - 0.0001;
+
+                        }
+                        else if (std.cgpa >= 3.5 && std.cgpa < 3.7)
+                        {
+                            std.prev_cgpa = std.cgpa - 0.0008;
+                        }
+                        else if (std.cgpa >= 3.3 && std.cgpa < 3.5)
+                        {
+                            std.prev_cgpa = std.cgpa - 0.010;
+                        }
+                        else if (std.cgpa >= 3.0 && std.cgpa < 3.3)
+                        {
+                            std.prev_cgpa = std.cgpa - 0.02;
+                        }
+                        else if (std.cgpa >= 2.7 && std.cgpa < 3.0)
+                        {
+                            std.prev_cgpa = std.cgpa - 0.05;
+                        }
+                        else
+                        {
+                            std.prev_cgpa = std.cgpa - 0.15;
+                        }
+                    }
+                }
+                db.SaveChanges();
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPost]
+        public HttpResponseMessage AddBudget(int amount)
+        {
+            try
+            {
+                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
+                if (amount > 0)
+                {
+                    var paisa = db.Budgets.OrderByDescending(bd => bd.budgetId).FirstOrDefault();
+                    Budget b;
+                    if (paisa != null)
+                    {
+                        b = new Budget();
+                        b.budgetAmount = amount;
+                        b.remainingAmount = paisa.remainingAmount + amount;
+                        b.status = "A";
+                        b.budget_session = session.session1;
+                    }
+                    else
+                    {
+                        b = new Budget();
+                        b.budgetAmount = amount;
+                        b.remainingAmount = amount;
+                        b.status = "A";
+                        b.budget_session = session.session1;
+
+                    }
+                    db.Budgets.Add(b);
+                    db.SaveChanges();
+                    var Remainbalance = db.Budgets.OrderByDescending(bd => bd.budgetId).FirstOrDefault();
+                    return Request.CreateResponse(HttpStatusCode.OK, Remainbalance.remainingAmount);
+                }
+                else
+                {
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized, "Add Some Ammount");
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
         }
         [HttpPost]
@@ -505,150 +1133,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
             }
         }
-        [HttpGet]
-        public HttpResponseMessage getStudentApplicationStatus(int id)
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-
-                var count = db.Applications.Where(c => c.studentId == 1d && c.session == session.session1).FirstOrDefault();
-                if (count != null)
-                {
-                    var result = db.Applications.Where(ap => ap.studentId == id).Join(
-                    db.FinancialAids,
-                    a => a.applicationID,
-                    f => f.applicationId,
-                    (a, f) => new
-                    {
-                        //                        a.applicationID,
-                        f.applicationStatus,
-                    }
-                    );
-                    return Request.CreateResponse(HttpStatusCode.OK, result);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.NotFound, "Not Submitted");
-                }
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-        [HttpGet]
-        public HttpResponseMessage RejectedApplication()
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-
-                var applications = db.Applications.Where(ap => ap.session == session.session1)
-                                          .GroupJoin(db.Suggestions,
-                                              application => application.applicationID,
-                                              suggestion => suggestion.applicationId,
-                                              (application, suggestion) => new
-                                              {
-                                                  application,
-                                                  suggestion
-                                              });
-                var result = applications.Join(db.Students,
-                    ap => ap.application.studentId,
-                    s => s.student_id,
-                    (appplication, student) => new
-                    {
-                        student.arid_no,
-                        student.name,
-                        student.student_id,
-                        student.father_name,
-                        student.gender,
-                        student.degree,
-                        student.cgpa,
-                        student.semester,
-                        student.section,
-                        student.profile_image,
-                        appplication.application.applicationDate,
-                        appplication.application.reason,
-                        appplication.application.requiredAmount,
-                        appplication.application.EvidenceDocuments,
-                        appplication.application.applicationID,
-                        appplication.application.session,
-                        appplication.application.father_status,
-                        appplication.application.jobtitle,
-                        appplication.application.salary,
-                        appplication.application.guardian_contact,
-                        appplication.application.house,
-                        appplication.application.guardian_name,
-                        appplication.suggestion,
-                    });
-
-                var pendingapplication = result.Join(
-                    db.FinancialAids,
-                    re => re.applicationID,
-                    f => f.applicationId,
-                    (re, f) => new
-                    {
-                        re,
-                        f.applicationStatus
-                    }
-                    );
-
-                return Request.CreateResponse(HttpStatusCode.OK, pendingapplication.Where(p => p.applicationStatus.ToLower().Equals("rejected")));
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
-
-        [HttpGet]
-        public HttpResponseMessage MeritBaseRejectedApplication()
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-                var rejectedApplication = db.MeritBases.Where(mr => mr.session == session.session1).Join(
-                    db.FinancialAids.Where(fn => fn.session == session.session1 && fn.applicationStatus.ToLower() == "rejected"),
-                    m => m.studentId,
-                    f => f.applicationId,
-                    (m, f) => new
-                    {
-                        m,
-                        f
-                    }
-                    );
-                var result = rejectedApplication.Join
-                    (
-                    db.Students,
-                    ra => ra.m.studentId,
-                    s => s.student_id,
-                    (re, s) => new
-                    {
-                        re.f.aidtype,
-                        re.f.applicationStatus,
-                        s.name,
-                        s.arid_no,
-                        s.profile_image,
-                        s.cgpa,
-                        s.prev_cgpa,
-                        s.degree,
-                        s.gender,
-                        s.father_name,
-                        s.section,
-                        s.semester,
-                        s.student_id,
-                    }
-                    );
-                return Request.CreateResponse(HttpStatusCode.OK, result);
-
-
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
 
         //[HttpPost]
         //public HttpResponseMessage AddCommitteeMember(int id)
@@ -742,9 +1226,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
-
-
         [HttpPost]
         public HttpResponseMessage AssignGrader(int facultyId, int studentId)
         {
@@ -777,43 +1258,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
-        [HttpGet]
-        public HttpResponseMessage gradersInformation(int id)
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-                var graders = db.Faculties.Where(fal => fal.facultyId == id).Join
-                    (
-                        db.graders.Where(gr => gr.facultyId == id && gr.session == session.session1),
-                        f => f.facultyId,
-                        g => g.facultyId,
-                        (f, g) => new
-                        {
-                            g.Student.name,
-                            g.Student.arid_no,
-                            g.studentId,
-                            g.Student.profile_image,
-                            g.Student.gender,
-                            f.facultyId,
-                        }
-                    );
-                if (graders.ToList().Count < 1)
-                {
-                    return Request.CreateResponse(HttpStatusCode.BadRequest);
-                }
-                else
-                {
-                    return Request.CreateResponse(HttpStatusCode.OK, graders);
-                }
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
         [HttpPost]
         public HttpResponseMessage Removegrader(int id)
         {
@@ -830,77 +1274,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
-        [HttpGet]
-        public HttpResponseMessage ApplicationSuggestions()
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-                var totalCommitteeMembers = db.Committees.Where(c => c.status == "1").ToList().Count();
-
-                var applications = db.Applications.Where(app => app.session == session.session1)
-                                           .GroupJoin(db.Suggestions,
-                                               application => application.applicationID,
-                                               suggestion => suggestion.applicationId,
-                                               (application, suggestion) => new
-                                               {
-                                                   application,
-                                                   suggestion
-                                               })
-                    .Where(ap => ap.suggestion.ToList().Count == totalCommitteeMembers);
-
-                var result = applications.Join(db.Students,
-                    ap => ap.application.studentId,
-                    s => s.student_id,
-                    (appplication, student) => new
-                    {
-                        student.arid_no,
-                        student.name,
-                        student.student_id,
-                        student.father_name,
-                        student.gender,
-                        student.degree,
-                        student.cgpa,
-                        student.semester,
-                        student.section,
-                        student.profile_image,
-                        appplication.application.applicationDate,
-                        appplication.application.reason,
-                        appplication.application.requiredAmount,
-                        appplication.application.EvidenceDocuments,
-                        appplication.application.applicationID,
-                        appplication.application.session,
-                        appplication.application.father_status,
-                        appplication.application.jobtitle,
-                        appplication.application.salary,
-                        appplication.application.guardian_contact,
-                        appplication.application.house,
-                        appplication.application.guardian_name,
-                        appplication.suggestion,
-                    });
-
-                var pendingapplication = result.Join(
-                    db.FinancialAids,
-                    re => re.applicationID,
-                    f => f.applicationId,
-                    (re, f) => new
-                    {
-                        re,
-                        f.applicationStatus
-                    }
-                    );
-
-                return Request.CreateResponse(HttpStatusCode.OK, pendingapplication.Where(p => p.applicationStatus.ToLower() == "pending"));
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
-            }
-        }
-
-
-
-
         [HttpPost]
         public HttpResponseMessage UpdatePassword(int id, String username, String password)
         {
@@ -930,8 +1303,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }
-
-        
         /*[HttpGet]
         public HttpResponseMessage ToperStudents(double cgpa)
         {
@@ -944,152 +1315,6 @@ namespace FinancialAidAllocation.Controllers
                 return Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
         }*/
-
-       
-        [HttpGet]
-        public HttpResponseMessage UnAssignedFaculty()
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-
-                var query = from f in db.Faculties
-                            join g in db.graders.Where(gr => gr.session == session.session1)
-                            on f.facultyId equals g.facultyId into
-                            joinedRecord
-                            from g in joinedRecord.DefaultIfEmpty()
-                            where g == null
-                            select f;
-                return Request.CreateResponse(HttpStatusCode.OK, query);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
-
-        [HttpGet]
-        public HttpResponseMessage unAssignedGraders1()
-        {
-            try
-            {
-                var session = db.Sessions.OrderByDescending(sess => sess.id).FirstOrDefault();
-
-                // Need-based accepted applications
-                var needBaseAcceptedApplications = from fa in db.FinancialAids
-                                                   where fa.applicationStatus.ToLower() == "accepted" && fa.aidtype.ToLower() == "needbase"
-                                                   join ap in db.Applications.Where(app => app.session == session.session1)
-                                                   on fa.applicationId equals ap.applicationID
-                                                   select new { ap.studentId };
-
-                // Need-based accepted students
-                var needBaseAcceptedStudents = from app in needBaseAcceptedApplications
-                                               join st in db.Students
-                                               on app.studentId equals st.student_id
-                                               select st;
-
-                // Merit-based accepted applications
-                var meritbaseAcceptedApplication = from fa in db.FinancialAids
-                                                   where fa.applicationStatus.ToLower() == "accepted" && fa.aidtype.ToLower() == "meritbase" && fa.session == session.session1
-                                                   join ap in db.MeritBases.Where(app => app.session == session.session1)
-                                                   on fa.applicationId equals ap.studentId
-                                                   select new { ap.studentId };
-
-                // Merit-based accepted students
-                var meritBaseAcceptedStudents = from fa in meritbaseAcceptedApplication
-                                                join st in db.Students
-                                                on fa.studentId equals st.student_id
-                                                select st;
-
-                // Combine need-based and merit-based accepted students
-                var acceptedStudents = needBaseAcceptedStudents.Union(meritBaseAcceptedStudents);
-
-                // Left join with graders to find unassigned graders and calculate average rating
-                var result = from student in acceptedStudents
-                             join grader in db.graders.Where(gr => gr.session != session.session1)
-                             on student.student_id equals grader.studentId into gradings
-                             from grader in gradings.DefaultIfEmpty()
-                             select new
-                             {
-                                 student.name,
-                                 student.arid_no,
-                                 student.semester,
-                                 student.cgpa,
-                                 student.section,
-                                 student.degree,
-                                 student.father_name,
-                                 student.gender,
-                                 student.student_id,
-                                 student.profile_image,
-                                 student.prev_cgpa,
-                                 AverageRating = grader == null ? (double?)null : db.graders.Where(r => r.studentId == grader.studentId).Average(r => (double?)r.feedback)
-                             };
-
-                var unassignedGradersWithRatings = result.ToList();
-
-                return Request.CreateResponse(HttpStatusCode.OK, unassignedGradersWithRatings);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
-
-        [HttpGet]
-        public HttpResponseMessage Merit()
-        {
-            try
-            {
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
-
-        [HttpGet]
-        public HttpResponseMessage pendingApplication()
-        {
-            try
-            {
-
-                var query = from s in db.Students
-                            join a in db.Applications
-                            on s.student_id equals
-                            a.studentId into joinedRecords
-                            from a in
-                                joinedRecords.DefaultIfEmpty()
-                            where a != null
-                            select a;
-                var pendingApplication = from q in query
-                                         join f in db.FinancialAids
-                                         on q.applicationID equals f.applicationId into
-                                         joinedRecords
-                                         from f in joinedRecords.DefaultIfEmpty()
-                                         where f != null
-                                         select q;
-                return Request.CreateResponse(HttpStatusCode.OK, query);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
-
-        [HttpGet]
-        public HttpResponseMessage GiveRating()
-        {
-            try
-            {
-
-                return Request.CreateResponse(HttpStatusCode.OK);
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateResponse(HttpStatusCode.BadRequest, ex);
-            }
-        }
 
         [HttpPost]
         public HttpResponseMessage AddSession(String name, String startDate, String endDate, String lastDate)
